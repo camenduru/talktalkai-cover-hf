@@ -1,3 +1,5 @@
+import spaces
+
 import os
 import glob
 import json
@@ -213,7 +215,7 @@ pre_fun_hp5 = func(
 )
 
 # Separate vocals
-
+@spaces.GPU(duration=120)
 def youtube_downloader(
     video_identifier,
     filename,
@@ -408,6 +410,7 @@ load_hubert()
 
 singers="您的专属AI歌手阵容:"
 
+@spaces.GPU(duration=180)
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")

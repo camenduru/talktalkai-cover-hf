@@ -18,7 +18,7 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 import torch
-from fairseq.data import data_utils
+#from fairseq.data import data_utils
 from fairseq.dataclass.configs import CheckpointConfig
 from fairseq.dataclass.utils import (
     convert_namespace_to_omegaconf,

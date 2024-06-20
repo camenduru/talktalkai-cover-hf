@@ -361,7 +361,7 @@ def load_hubert():
         hubert_model = hubert_model.float()
     hubert_model.eval()
 '''
-
+'''
 def load_hubert():
     global hubert_model
     
@@ -376,7 +376,7 @@ def load_hubert():
     hubert_model.load_state_dict(state_dict['model'])
     
     # Move the model to the desired device
-    hubert_model = hubert_model.to("cuda:0")
+    hubert_model = hubert_model.to("cpu")
     
     # Set the model to half precision if required
     if config.is_half:
@@ -388,6 +388,21 @@ def load_hubert():
     hubert_model.eval()
 
 load_hubert()
+'''
+from fairseq import checkpoint_utils
+
+global hubert_model
+models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+    ["hubert_base.pt"],
+    suffix="",
+)
+hubert_model = models[0]
+hubert_model = hubert_model.to(config.device)
+if config.is_half:
+    hubert_model = hubert_model.half()
+else:
+    hubert_model = hubert_model.float()
+hubert_model.eval()
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version

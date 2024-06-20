@@ -387,7 +387,7 @@ def load_hubert():
     # Set the model to evaluation mode
     hubert_model.eval()
 
-#load_hubert()
+load_hubert()
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
@@ -467,7 +467,7 @@ def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version
     )
     
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
-  load_hubert()
+  #load_hubert()
   #print(hubert_model)
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")

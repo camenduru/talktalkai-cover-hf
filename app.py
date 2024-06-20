@@ -44,7 +44,7 @@ from vc_infer_pipeline import VC
 from config import Config
 config = Config()
 logging.getLogger("numba").setLevel(logging.WARNING)
-spaces = True #os.getenv("SYSTEM") == "spaces"
+spaces_hf = True #os.getenv("SYSTEM") == "spaces"
 force_support = True
 
 audio_mode = []
@@ -245,8 +245,8 @@ def youtube_downloader(
 
 # Original code
 
-if force_support is False or spaces is True:
-    if spaces is True:
+if force_support is False or spaces_hf is True:
+    if spaces_hf is True:
         audio_mode = ["Upload audio", "TTS Audio"]
     else:
         audio_mode = ["Input path", "Upload audio", "TTS Audio"]
@@ -287,7 +287,7 @@ def create_vc_fn(model_name, tgt_sr, net_g, vc, if_f0, version, file_index):
                     return "You need to upload an audio", None
                 sampling_rate, audio = vc_upload
                 duration = audio.shape[0] / sampling_rate
-                if duration > 20 and spaces:
+                if duration > 20 and spaces_hf:
                     return "Please upload an audio file that is less than 20 seconds. If you need to generate a longer audio file, please use Colab.", None
                 audio = (audio / np.iinfo(audio.dtype).max).astype(np.float32)
                 if len(audio.shape) > 1:

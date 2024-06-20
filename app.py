@@ -407,12 +407,13 @@ def rvc_models(model_name):
   categories.append(["Models", "", models])
   return vc, net_g, index_files, tgt_sr, version
 
-load_hubert()
+#load_hubert()
 
 singers="您的专属AI歌手阵容:"
 
 @spaces.GPU(duration=180)
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
+  load_hubert()
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):

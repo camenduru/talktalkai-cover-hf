@@ -17,7 +17,7 @@ import sys
 import io
 import wave
 from datetime import datetime
-from fairseq import checkpoint_utils
+#from fairseq import checkpoint_utils
 import urllib.request
 import zipfile
 import shutil
@@ -344,6 +344,8 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     return output_path
 
 def load_hubert():
+    from fairseq import checkpoint_utils
+
     global hubert_model
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],

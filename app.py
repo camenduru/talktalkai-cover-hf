@@ -66,6 +66,21 @@ urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc
 
 pattern_zip = r"/([^/]+)\.zip$"
 
+from fairseq import checkpoint_utils
+
+global hubert_model
+models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+    ["hubert_base.pt"],
+    suffix="",
+)
+hubert_model = models[0]
+hubert_model = hubert_model.to(config.device)
+if config.is_half:
+    hubert_model = hubert_model.half()
+else:
+    hubert_model = hubert_model.float()
+hubert_model.eval()
+
 def get_file_name(url):
   match = re.search(pattern_zip, url)
   if match:
@@ -389,20 +404,7 @@ def load_hubert():
 
 load_hubert()
 '''
-from fairseq import checkpoint_utils
 
-global hubert_model
-models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-    ["hubert_base.pt"],
-    suffix="",
-)
-hubert_model = models[0]
-hubert_model = hubert_model.to(config.device)
-if config.is_half:
-    hubert_model = hubert_model.half()
-else:
-    hubert_model = hubert_model.float()
-hubert_model.eval()
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version

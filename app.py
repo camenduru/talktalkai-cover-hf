@@ -366,7 +366,7 @@ def load_hubert():
     global hubert_model
     
     # Load the model state dictionary from the file
-    state_dict = torch.load("hubert_base.pt", map_location="cuda:0")
+    state_dict = torch.load("hubert_base.pt", map_location="cpu")
     
     # Initialize the model
     from fairseq.models.hubert import HubertModel

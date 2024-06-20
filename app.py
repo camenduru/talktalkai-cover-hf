@@ -413,7 +413,7 @@ def rvc_models(model_name):
 
 singers="您的专属AI歌手阵容:"
 
-@spaces.GPU(duration=500)
+@spaces.GPU(duration=300)
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   load_hubert()
   print(hubert_model)

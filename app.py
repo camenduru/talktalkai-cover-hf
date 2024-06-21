@@ -66,79 +66,6 @@ pattern = r'//www\.bilibili\.com/video[^"]*'
 
 pattern_zip = r"/([^/]+)\.zip$"
 
-
-#os.system("pip install fairseq")
-'''
-from fairseq import checkpoint_utils
-
-global hubert_model
-models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-    ["hubert_base.pt"],
-    suffix="",
-)
-hubert_model = models[0]
-hubert_model = hubert_model.to(config.device)
-if config.is_half:
-    hubert_model = hubert_model.half()
-else:
-    hubert_model = hubert_model.float()
-hubert_model.eval()
-'''
-
-#from infer_rvc_python.main import load_hu_bert
-
-#load_hu_bert(config, "hubert_base.pt")
-
-from infer_rvc_python import BaseLoader
-
-#converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
-#converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
-'''
-@spaces.GPU()
-def convert_now(audio_files, random_tag, converter):
-    return converter(
-        audio_files,
-        random_tag,
-        overwrite=False,
-        parallel_workers=8
-    )
-
-converter_test = BaseLoader(only_cpu=False, hubert_path=None, rmvpe_path=None)
-
-converter_test.apply_conf(
-        tag="yoimiya",
-        file_model="model.pth",
-        pitch_algo="rmvpe+",
-        pitch_lvl=0,
-        file_index="model.index",
-        index_influence=0.66,
-        respiration_median_filtering=3,
-        envelope_ratio=0.25,
-        consonant_breath_protection=0.33
-    )
-
-convert_now("10.wav", "test", converter_test)
-'''
-
-@spaces.GPU()
-def load_hubert():
-    global hubert_model
-    from fairseq import checkpoint_utils
-
-    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-        ["hubert_base.pt"],
-        suffix="",
-    )
-    hubert_model = models[0]
-    hubert_model = hubert_model.to(config.device)
-    if config.is_half:
-        hubert_model = hubert_model.half()
-    else:
-        hubert_model = hubert_model.float()
-    hubert_model.eval()
-
-load_hubert()  
-
 def get_file_name(url):
   match = re.search(pattern_zip, url)
   if match:
@@ -417,11 +344,11 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
 
-'''
+@spaces.GPU()
 def load_hubert():
+    global hubert_model
     from fairseq import checkpoint_utils
 
-    global hubert_model
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],
         suffix="",
@@ -433,35 +360,8 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
-'''
-'''
-def load_hubert():
-    global hubert_model
-    
-    # Load the model state dictionary from the file
-    state_dict = torch.load("hubert_base.pt", map_location="cpu")
-    
-    # Initialize the model
-    from fairseq.models.hubert import HubertModel
-    hubert_model = HubertModel.build_model(state_dict['args'], task=None)
-    
-    # Load the state dictionary into the model
-    hubert_model.load_state_dict(state_dict['model'])
-    
-    # Move the model to the desired device
-    hubert_model = hubert_model.to("cpu")
-    
-    # Set the model to half precision if required
-    if config.is_half:
-        hubert_model = hubert_model.half()
-    else:
-        hubert_model = hubert_model.float()
-    
-    # Set the model to evaluation mode
-    hubert_model.eval()
 
-load_hubert()
-'''
+load_hubert()  
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
@@ -475,7 +375,7 @@ def rvc_models(model_name):
           if pth_files == []:
               print(f"Model [{model_count}/{len(w_dirs)}]: No Model file detected, skipping...")
               continue
-          cpt = torch.load(pth_files[0], map_location="cpu")
+          cpt = torch.load(pth_files[0])
           tgt_sr = cpt["config"][-1]
           cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
           if_f0 = cpt.get("f0", 1)
@@ -513,7 +413,6 @@ def rvc_models(model_name):
   categories.append(["Models", "", models])
   return vc, net_g, index_files, tgt_sr, version
 
-#load_hubert()
 
 singers="您的专属AI歌手阵容:"
 
@@ -541,8 +440,6 @@ def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version
     )
     
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
-  #load_hubert()
-  #print(hubert_model)
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):
@@ -552,13 +449,13 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   global singers
   if model_name not in singers:
     singers = singers+ '   '+ model_name
-  print("开始下载模型...")
+  print("1.开始下载模型")
   download_online_model(url, model_name)
   rvc_models(zip_path)
   song_name = song_name.strip().replace(" ", "")
   video_identifier = search_bilibili(song_name)
   song_id = get_bilibili_video_id(video_identifier)
-
+  print("2.开始去除BGM及推理")
   if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
     audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
     song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)

@@ -66,7 +66,7 @@ urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc
 
 pattern_zip = r"/([^/]+)\.zip$"
 
-os.system("pip install fairseq")
+#os.system("pip install fairseq")
 from fairseq import checkpoint_utils
 
 global hubert_model

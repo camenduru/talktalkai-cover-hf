@@ -424,7 +424,7 @@ def rvc_models(model_name):
   categories.append(["Models", "", models])
   return vc, net_g, index_files, tgt_sr, version
 
-@spaces.GPU
+@spaces.GPU()
 from fairseq import checkpoint_utils
 
 

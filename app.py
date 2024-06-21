@@ -92,9 +92,19 @@ hubert_model.eval()
 from infer_rvc_python import BaseLoader
 
 #converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
-converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
+#converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
 
-converter.apply_conf(
+def convert_now(audio_files, random_tag, converter):
+    return converter(
+        audio_files,
+        random_tag,
+        overwrite=False,
+        parallel_workers=8
+    )
+
+converter_test = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
+
+converter_test.apply_conf(
         tag="yoimiya",
         file_model="model.pth",
         pitch_algo="rmvpe+",
@@ -104,21 +114,9 @@ converter.apply_conf(
         respiration_median_filtering=3,
         envelope_ratio=0.25,
         consonant_breath_protection=0.33
-  )
+    )
 
-# audio_files = ["audio.wav", "haha.mp3"]
-audio_files = "10.wav"
-
-# speakers_list = ["sunshine", "yoimiya"]
-speakers_list = "yoimiya"
-
-result = converter(
-    audio_files,
-    speakers_list,
-    overwrite=False,
-    parallel_workers=4
-)
-
+convert_now("10.wav", "test", converter_test)
 
 
 def get_file_name(url):

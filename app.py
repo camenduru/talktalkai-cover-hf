@@ -428,7 +428,7 @@ def rvc_models(model_name):
 singers="您的专属AI歌手阵容:"
 
 @spaces.GPU(duration=80)
-def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None):
+def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None):
     from fairseq import checkpoint_utils
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],
@@ -482,12 +482,15 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
     print("2.直接开始推理")
     audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
-    song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
+    #song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
+    song_infer = infer_gpu(net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
+
   else:
     print("2.1.开始去除BGM")
     audio, sr = librosa.load(youtube_downloader(video_identifier, song_id, split_model)[0], sr=16000, mono=True)
     print("2.2.开始推理")
-    song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
+    #song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
+    song_infer = infer_gpu(net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
 
   sf.write(song_name.strip()+zip_path+"AI翻唱.wav", song_infer, tgt_sr)
   output_full_song = combine_vocal_and_inst(zip_path, song_name.strip(), song_id, split_model, song_name.strip()+zip_path+"AI翻唱.wav", vocal_volume, inst_volume)

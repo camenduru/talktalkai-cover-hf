@@ -349,7 +349,6 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
 
-global hubert_model
 
 @spaces.GPU()
 def load_hubert():
@@ -367,8 +366,9 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
+    return hubert_model
 
-load_hubert()  
+hubert_model = load_hubert()
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version

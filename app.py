@@ -354,7 +354,6 @@ global hubert_model
 def load_hubert():
     #global hubert_model
     from fairseq import checkpoint_utils
-    import_fairseq()
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],
         suffix="",

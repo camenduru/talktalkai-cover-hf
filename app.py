@@ -456,7 +456,7 @@ def rvc_models(model_name):
           if pth_files == []:
               print(f"Model [{model_count}/{len(w_dirs)}]: No Model file detected, skipping...")
               continue
-          cpt = torch.load(pth_files[0])
+          cpt = torch.load(pth_files[0], map_location="cpu")
           tgt_sr = cpt["config"][-1]
           cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
           if_f0 = cpt.get("f0", 1)

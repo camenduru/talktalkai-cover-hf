@@ -349,30 +349,6 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
     
-'''
-global hubert_model
-@spaces.GPU(duration=10)
-def load_hubert():
-    #global hubert_model
-    from fairseq import checkpoint_utils
-    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-        ["hubert_base.pt"],
-        suffix="",
-    )
-    hubert_model = models[0]
-    hubert_model = hubert_model.to(config.device)
-    if config.is_half:
-        hubert_model = hubert_model.half()
-    else:
-        hubert_model = hubert_model.float()
-    hubert_model.eval()
-    print(hubert_model)
-    #return hubert_model
-
-#hubert_model = load_hubert()
-load_hubert()
-print(hubert_model)
-'''
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
@@ -423,10 +399,6 @@ def rvc_models(model_name):
           models.append((index_files[0][:-4], index_files[0][:-4], "", "", model_version, create_vc_fn(index_files[0], tgt_sr, net_g, vc, if_f0, version, model_index)))
   categories.append(["Models", "", models])
   return vc, net_g, index_files, tgt_sr, version
-
-@spaces.GPU()
-from fairseq import checkpoint_utils
-
 
 singers="您的专属AI歌手阵容:"
 

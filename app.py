@@ -358,12 +358,13 @@ def load_hubert():
         suffix="",
     )
     hubert_model = models[0]
-    hubert_model = hubert_model.to("cpu")#(config.device)
+    hubert_model = hubert_model.to(config.device)
     if config.is_half:
         hubert_model = hubert_model.half()
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
+    print(hubert_model)
     return hubert_model
 
 hubert_model = load_hubert()

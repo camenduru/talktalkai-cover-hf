@@ -1,5 +1,6 @@
 torch==2.2.0
-infer-rvc-python==1.1.0
+#infer-rvc-python==1.1.0
+git+https://github.com/KevinWang676/infer_rvc_python@main
 wheel
 setuptools
 ffmpeg

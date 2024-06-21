@@ -91,7 +91,7 @@ hubert_model.eval()
 
 from infer_rvc_python import BaseLoader
 
-BaseLoader(only_cpu=False, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
+BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
 
 
 def get_file_name(url):
@@ -498,7 +498,7 @@ def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version
     
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   #load_hubert()
-  #print(hubert_model)
+  print(hubert_model)
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):

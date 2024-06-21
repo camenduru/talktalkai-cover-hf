@@ -444,7 +444,6 @@ def load_hubert():
 load_hubert()
 '''
 
-@spaces.GPU()
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
   categories = []

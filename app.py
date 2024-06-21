@@ -365,7 +365,7 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
-    return hubert_model
+    yield hubert_model
 
 print("0.开始加载Hubert")
 load_hubert()

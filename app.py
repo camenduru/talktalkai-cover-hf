@@ -94,6 +94,7 @@ from infer_rvc_python import BaseLoader
 #converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
 #converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
 
+@spaces.GPU()
 def convert_now(audio_files, random_tag, converter):
     return converter(
         audio_files,
@@ -102,7 +103,7 @@ def convert_now(audio_files, random_tag, converter):
         parallel_workers=8
     )
 
-converter_test = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
+converter_test = BaseLoader(only_cpu=False, hubert_path=None, rmvpe_path=None)
 
 converter_test.apply_conf(
         tag="yoimiya",

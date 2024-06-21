@@ -349,7 +349,7 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
 
-@spaces.GPU()
+@spaces.GPU(duration=10)
 def load_hubert():
     global hubert_model
     from fairseq import checkpoint_utils

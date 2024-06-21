@@ -93,7 +93,7 @@ from infer_rvc_python import BaseLoader
 
 #converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
 #converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
-
+'''
 @spaces.GPU()
 def convert_now(audio_files, random_tag, converter):
     return converter(
@@ -118,7 +118,38 @@ converter_test.apply_conf(
     )
 
 convert_now("10.wav", "test", converter_test)
+'''
 
+@spaces.GPU()
+def load_hu_bert(config, hubert_path=None):
+    global hubert_model
+    from fairseq import checkpoint_utils
+
+    if hubert_path is None:
+        hubert_path = ""
+    if not os.path.exists(hubert_path):
+        for id_model in BASE_MODELS:
+            download_manager(
+                os.path.join(BASE_DOWNLOAD_LINK, id_model), BASE_DIR
+            )
+        hubert_path = "hubert_base.pt"
+
+    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+        [hubert_path],
+        suffix="",
+    )
+    hubert_model = models[0]
+    hubert_model = hubert_model.to(config.device)
+    if config.is_half:
+        hubert_model = hubert_model.half()
+    else:
+        hubert_model = hubert_model.float()
+    hubert_model.eval()
+    print(hubert_model)
+
+    return hubert_model
+
+load_hu_bert(config, None)  
 
 def get_file_name(url):
   match = re.search(pattern_zip, url)
@@ -533,6 +564,7 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   global singers
   if model_name not in singers:
     singers = singers+ '   '+ model_name
+  print("开始下载模型...")
   download_online_model(url, model_name)
   rvc_models(zip_path)
   song_name = song_name.strip().replace(" ", "")

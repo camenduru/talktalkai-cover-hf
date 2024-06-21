@@ -368,7 +368,7 @@ def load_hubert():
     yield hubert_model
 
 print("0.开始加载Hubert")
-load_hubert()
+hubert_model = load_hubert()
 print(hubert_model)
 
 def rvc_models(model_name):

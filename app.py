@@ -91,7 +91,8 @@ hubert_model.eval()
 
 from infer_rvc_python import BaseLoader
 
-converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
+#converter = BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
+converter = BaseLoader(only_cpu=True, hubert_path=None, rmvpe_path=None)
 
 converter.apply_conf(
         tag="yoimiya",

@@ -66,7 +66,9 @@ urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc
 
 pattern_zip = r"/([^/]+)\.zip$"
 
+
 #os.system("pip install fairseq")
+'''
 from fairseq import checkpoint_utils
 
 global hubert_model
@@ -81,6 +83,11 @@ if config.is_half:
 else:
     hubert_model = hubert_model.float()
 hubert_model.eval()
+'''
+
+from infer_rvc_python.main import load_hu_bert
+
+load_hu_bert(config, "hubert_base.pt")
 
 def get_file_name(url):
   match = re.search(pattern_zip, url)

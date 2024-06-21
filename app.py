@@ -365,10 +365,8 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
-    yield hubert_model
+    print(hubert_model)
 
-print("0.开始加载Hubert")
-hubert_model = load_hubert()
 print(hubert_model)
 
 def rvc_models(model_name):

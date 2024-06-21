@@ -60,7 +60,7 @@ pattern = r'//www\.bilibili\.com/video[^"]*'
 # Download models
 
 #urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/hubert_base", "hubert_base.pt")
-urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/rmvpe", "rmvpe.pt")
+#urllib.request.urlretrieve("https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/rmvpe", "rmvpe.pt")
 
 # Get zip name
 

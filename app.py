@@ -93,6 +93,32 @@ from infer_rvc_python import BaseLoader
 
 BaseLoader(only_cpu=True, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
 
+converter.apply_conf(
+        tag="yoimiya",
+        file_model="model.pth",
+        pitch_algo="rmvpe+",
+        pitch_lvl=0,
+        file_index="model.index",
+        index_influence=0.66,
+        respiration_median_filtering=3,
+        envelope_ratio=0.25,
+        consonant_breath_protection=0.33
+  )
+
+# audio_files = ["audio.wav", "haha.mp3"]
+audio_files = "10.wav"
+
+# speakers_list = ["sunshine", "yoimiya"]
+speakers_list = "yoimiya"
+
+result = converter(
+    audio_files,
+    speakers_list,
+    overwrite=False,
+    parallel_workers=4
+)
+
+
 
 def get_file_name(url):
   match = re.search(pattern_zip, url)
@@ -498,7 +524,7 @@ def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version
     
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   #load_hubert()
-  print(hubert_model)
+  #print(hubert_model)
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):

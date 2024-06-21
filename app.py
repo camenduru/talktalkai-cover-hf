@@ -350,10 +350,10 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     return output_path
 
 global hubert_model
-
+hubert_model = None
 @spaces.GPU()
 def load_hubert():
-    global hubert_model
+    #global hubert_model
     from fairseq import checkpoint_utils
 
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(

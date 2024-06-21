@@ -85,9 +85,14 @@ else:
 hubert_model.eval()
 '''
 
-from infer_rvc_python.main import load_hu_bert
+#from infer_rvc_python.main import load_hu_bert
 
-load_hu_bert(config, "hubert_base.pt")
+#load_hu_bert(config, "hubert_base.pt")
+
+from infer_rvc_python import BaseLoader
+
+BaseLoader(only_cpu=False, hubert_path="hubert_base.pt", rmvpe_path="rmvpe.pt")
+
 
 def get_file_name(url):
   match = re.search(pattern_zip, url)

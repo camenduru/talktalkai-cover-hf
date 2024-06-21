@@ -217,7 +217,12 @@ pre_fun_hp5 = func(
 )
 
 # Separate vocals
-@spaces.GPU(duration=80)
+
+# GPU needed
+@spaces.GPU(duration=120)
+def get_vocal_gpu(audio_path, split_model, filename):
+    return pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
+
 def youtube_downloader(
     video_identifier,
     filename,
@@ -238,8 +243,8 @@ def youtube_downloader(
         pre_fun = pre_fun_hp2
     else:
         pre_fun = pre_fun_hp5
-
-    pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
+    get_vocal_gpu(audio_path, split_model, filename)
+    #pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
     os.remove(filename.strip()+".wav")
     
     return f"./output/{split_model}/{filename}/vocal_{filename}.wav_10.wav", f"./output/{split_model}/{filename}/instrument_{filename}.wav_10.wav"
@@ -375,7 +380,7 @@ def rvc_models(model_name):
           if pth_files == []:
               print(f"Model [{model_count}/{len(w_dirs)}]: No Model file detected, skipping...")
               continue
-          cpt = torch.load(pth_files[0])
+          cpt = torch.load(pth_files[0], map_location="cpu")
           tgt_sr = cpt["config"][-1]
           cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
           if_f0 = cpt.get("f0", 1)
@@ -455,12 +460,14 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   song_name = song_name.strip().replace(" ", "")
   video_identifier = search_bilibili(song_name)
   song_id = get_bilibili_video_id(video_identifier)
-  print("2.开始去除BGM及推理")
   if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
+    print("2.直接开始推理")
     audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
     song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
   else:
+    print("2.1.开始去除BGM")
     audio, sr = librosa.load(youtube_downloader(video_identifier, song_id, split_model)[0], sr=16000, mono=True)
+    print("2.2.开始推理")
     song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
 
   sf.write(song_name.strip()+zip_path+"AI翻唱.wav", song_infer, tgt_sr)

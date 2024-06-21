@@ -221,6 +221,10 @@ pre_fun_hp5 = func(
 # GPU needed
 @spaces.GPU(duration=120)
 def get_vocal_gpu(audio_path, split_model, filename):
+    if split_model=="UVR-HP2":
+        pre_fun = pre_fun_hp2
+    else:
+        pre_fun = pre_fun_hp5
     return pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
 
 def youtube_downloader(
@@ -239,10 +243,6 @@ def youtube_downloader(
       # make dir output
     os.makedirs("output", exist_ok=True)
 
-    if split_model=="UVR-HP2":
-        pre_fun = pre_fun_hp2
-    else:
-        pre_fun = pre_fun_hp5
     get_vocal_gpu(audio_path, split_model, filename)
     #pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
     os.remove(filename.strip()+".wav")

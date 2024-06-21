@@ -219,7 +219,7 @@ pre_fun_hp5 = func(
 # Separate vocals
 
 # GPU needed
-@spaces.GPU(duration=120)
+@spaces.GPU(duration=200)
 def get_vocal_gpu(audio_path, split_model, filename):
     if split_model=="UVR-HP2":
         pre_fun = pre_fun_hp2
@@ -349,6 +349,7 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
 
+global hubert_model
 
 @spaces.GPU()
 def load_hubert():
@@ -369,6 +370,7 @@ def load_hubert():
 
 print("0.开始加载Hubert")
 load_hubert()
+print(hubert_model)
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
@@ -447,7 +449,7 @@ def infer_gpu(hubert_model, net_g, audio, f0_up_key, index_file, tgt_sr, version
     )
     
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
-  load_hubert()
+  #load_hubert()
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):

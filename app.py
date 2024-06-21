@@ -424,11 +424,15 @@ def rvc_models(model_name):
   categories.append(["Models", "", models])
   return vc, net_g, index_files, tgt_sr, version
 
+@spaces.GPU
+from fairseq import checkpoint_utils
+
 
 singers="您的专属AI歌手阵容:"
 
 @spaces.GPU(duration=80)
 def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None):
+    
     from fairseq import checkpoint_utils
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],

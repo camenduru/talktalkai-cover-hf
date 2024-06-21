@@ -219,7 +219,7 @@ pre_fun_hp5 = func(
 # Separate vocals
 
 # GPU needed
-@spaces.GPU(duration=200)
+#@spaces.GPU(duration=200)
 def get_vocal_gpu(audio_path, split_model, filename):
     if split_model=="UVR-HP2":
         pre_fun = pre_fun_hp2
@@ -402,7 +402,7 @@ def rvc_models(model_name):
 
 singers="您的专属AI歌手阵容:"
 
-@spaces.GPU(duration=80)
+#@spaces.GPU(duration=80)
 def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None):
     
     from fairseq import checkpoint_utils
@@ -438,7 +438,8 @@ def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None
           0.33,
           f0_file=None,
     )
-    
+
+@spaces.GPU(duration=400)
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")

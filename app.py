@@ -349,6 +349,8 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     print(result.stdout.decode())
     return output_path
 
+global hubert_model
+
 @spaces.GPU()
 def load_hubert():
     global hubert_model

@@ -350,10 +350,14 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     return output_path
 
 @spaces.GPU()
-def load_hubert():
-    global hubert_model
+def load_fairseq():
     from fairseq import checkpoint_utils
 
+
+def load_hubert():
+    global hubert_model
+    #from fairseq import checkpoint_utils
+    load_fairseq()
     models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
         ["hubert_base.pt"],
         suffix="",
@@ -365,9 +369,9 @@ def load_hubert():
     else:
         hubert_model = hubert_model.float()
     hubert_model.eval()
-    print(hubert_model)
+    return hubert_model
 
-load_hubert()
+hubert_model = load_hubert()
 print(hubert_model)
 
 def rvc_models(model_name):

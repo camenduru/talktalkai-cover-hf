@@ -368,7 +368,8 @@ def load_hubert():
     print(hubert_model)
     #return hubert_model
 
-hubert_model = load_hubert()
+#hubert_model = load_hubert()
+load_hubert()
 print(hubert_model)
 
 def rvc_models(model_name):

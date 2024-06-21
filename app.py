@@ -366,7 +366,7 @@ def load_hubert():
         hubert_model = hubert_model.float()
     hubert_model.eval()
     print(hubert_model)
-    return hubert_model
+    #return hubert_model
 
 hubert_model = load_hubert()
 print(hubert_model)

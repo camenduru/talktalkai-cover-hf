@@ -1,0 +1,19 @@
+torch==2.2.0
+infer-rvc-python==1.1.0
+wheel
+setuptools
+ffmpeg
+numba==0.56.4
+numpy==1.23.5
+scipy==1.9.3
+faiss-cpu==1.7.3
+gradio  #==3.40.1
+gradio-client  #==0.8.1
+soundfile>=0.12.1
+praat-parselmouth>=0.4.2
+httpx==0.23.0
+tensorboard
+tensorboardX
+torchcrepe
+onnxruntime
+pyOpenSSL==24.0.0

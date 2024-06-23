@@ -455,7 +455,7 @@ def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vo
   sf.write(song_name.strip()+zip_path+"AI翻唱.wav", song_infer, tgt_sr)
   output_full_song = combine_vocal_and_inst(zip_path, song_name.strip(), song_id, split_model, song_name.strip()+zip_path+"AI翻唱.wav", vocal_volume, inst_volume)
   os.remove(song_name.strip()+zip_path+"AI翻唱.wav")
-  return output_full_song, singers
+  return output_full_song
 
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   url = url.strip().replace(" ", "")
@@ -479,7 +479,7 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   print("2.开始下载AI翻唱歌曲...")
   with open(song_id.strip() + ".wav", mode="wb") as f:
       f.write(audio_content)
-  output_full_song, singers = rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume)
+  output_full_song = rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume)
   return output_full_song, singers
       
 app = gr.Blocks(theme="JohnSmith9982/small_and_pretty")

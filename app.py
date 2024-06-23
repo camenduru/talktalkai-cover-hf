@@ -1,7 +1,4 @@
-# adapted for Zero GPU on Hugging Face
-
 import spaces
-
 import os
 import glob
 import json
@@ -18,7 +15,6 @@ import sys
 import io
 import wave
 from datetime import datetime
-#from fairseq import checkpoint_utils
 import urllib.request
 import zipfile
 import shutil
@@ -45,7 +41,7 @@ from vc_infer_pipeline import VC
 from config import Config
 config = Config()
 logging.getLogger("numba").setLevel(logging.WARNING)
-spaces_hf = True #os.getenv("SYSTEM") == "spaces"
+spaces = True #os.getenv("SYSTEM") == "spaces"
 force_support = True
 
 audio_mode = []
@@ -218,41 +214,30 @@ pre_fun_hp5 = func(
 
 # Separate vocals
 
-# GPU needed
-#@spaces.GPU(duration=200)
-def get_vocal_gpu(audio_path, split_model, filename):
+def youtube_downloader(
+    filename,
+    split_model,
+):
+
+    audio_path = filename.strip() + ".wav"
+
+    # make dir output
+    os.makedirs("output", exist_ok=True)
+
     if split_model=="UVR-HP2":
         pre_fun = pre_fun_hp2
     else:
         pre_fun = pre_fun_hp5
-    return pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
 
-def youtube_downloader(
-    video_identifier,
-    filename,
-    split_model,
-):
-    print(video_identifier)
-    video_info = get_video_info(video_identifier)
-    print(video_info)
-    audio_content = get_response(video_info).content
-    with open(filename.strip() + ".wav", mode="wb") as f:
-        f.write(audio_content)
-    audio_path = filename.strip() + ".wav"
-
-      # make dir output
-    os.makedirs("output", exist_ok=True)
-
-    get_vocal_gpu(audio_path, split_model, filename)
-    #pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
+    pre_fun._path_audio_(audio_path, f"./output/{split_model}/{filename}/", f"./output/{split_model}/{filename}/", "wav")
     os.remove(filename.strip()+".wav")
     
     return f"./output/{split_model}/{filename}/vocal_{filename}.wav_10.wav", f"./output/{split_model}/{filename}/instrument_{filename}.wav_10.wav"
 
 # Original code
 
-if force_support is False or spaces_hf is True:
-    if spaces_hf is True:
+if force_support is False or spaces is True:
+    if spaces is True:
         audio_mode = ["Upload audio", "TTS Audio"]
     else:
         audio_mode = ["Input path", "Upload audio", "TTS Audio"]
@@ -293,7 +278,7 @@ def create_vc_fn(model_name, tgt_sr, net_g, vc, if_f0, version, file_index):
                     return "You need to upload an audio", None
                 sampling_rate, audio = vc_upload
                 duration = audio.shape[0] / sampling_rate
-                if duration > 20 and spaces_hf:
+                if duration > 20 and spaces:
                     return "Please upload an audio file that is less than 20 seconds. If you need to generate a longer audio file, please use Colab.", None
                 audio = (audio / np.iinfo(audio.dtype).max).astype(np.float32)
                 if len(audio.shape) > 1:
@@ -348,7 +333,6 @@ def combine_vocal_and_inst(model_name, song_name, song_id, split_model, cover_so
     result = subprocess.run(command.split(), stdout=subprocess.PIPE)
     print(result.stdout.decode())
     return output_path
-    
 
 def rvc_models(model_name):
   global vc, net_g, index_files, tgt_sr, version
@@ -362,7 +346,7 @@ def rvc_models(model_name):
           if pth_files == []:
               print(f"Model [{model_count}/{len(w_dirs)}]: No Model file detected, skipping...")
               continue
-          cpt = torch.load(pth_files[0], map_location="cpu")
+          cpt = torch.load(pth_files[0])
           tgt_sr = cpt["config"][-1]
           cpt["config"][-3] = cpt["weight"]["emb_g.weight"].shape[0]  # n_spk
           if_f0 = cpt.get("f0", 1)
@@ -402,23 +386,27 @@ def rvc_models(model_name):
 
 singers="您的专属AI歌手阵容:"
 
-#@spaces.GPU(duration=80)
-def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None):
-    
-    from fairseq import checkpoint_utils
-    models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
-        ["hubert_base.pt"],
-        suffix="",
-    )
-    hubert_model = models[0]
-    hubert_model = hubert_model.to(config.device)
-    if config.is_half:
-        hubert_model = hubert_model.half()
-    else:
-        hubert_model = hubert_model.float()
-    hubert_model.eval()
 
-    return vc.pipeline(
+
+@spaces.GPU(duration=120)
+def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume):
+  from fairseq import checkpoint_utils
+  models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
+      ["hubert_base.pt"],
+      suffix="",
+  )
+  hubert_model = models[0]
+  hubert_model = hubert_model.to(config.device)
+  if config.is_half:
+      hubert_model = hubert_model.half()
+  else:
+      hubert_model = hubert_model.float()
+  hubert_model.eval()
+  rvc_models(zip_path)
+
+  if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
+    audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
+    song_infer = vc.pipeline(
           hubert_model,
           net_g,
           0,
@@ -427,7 +415,7 @@ def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None
           [0, 0, 0],
           f0_up_key,
           "rmvpe",
-          index_file,
+          index_files[0],
           0.7,
           1,
           3,
@@ -438,8 +426,33 @@ def infer_gpu(net_g, audio, f0_up_key, index_file, tgt_sr, version, f0_file=None
           0.33,
           f0_file=None,
     )
+  else:
+    audio, sr = librosa.load(youtube_downloader(song_id, split_model)[0], sr=16000, mono=True)
+    song_infer = vc.pipeline(
+          hubert_model,
+          net_g,
+          0,
+          audio,
+          "",
+          [0, 0, 0],
+          f0_up_key,
+          "rmvpe",
+          index_files[0],
+          0.7,
+          1,
+          3,
+          tgt_sr,
+          0,
+          0.25,
+          version,
+          0.33,
+          f0_file=None,
+    )
+  sf.write(song_name.strip()+zip_path+"AI翻唱.wav", song_infer, tgt_sr)
+  output_full_song = combine_vocal_and_inst(zip_path, song_name.strip(), song_id, split_model, song_name.strip()+zip_path+"AI翻唱.wav", vocal_volume, inst_volume)
+  os.remove(song_name.strip()+zip_path+"AI翻唱.wav")
+  return output_full_song, singers
 
-@spaces.GPU(duration=400)
 def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_volume, inst_volume):
   url = url.strip().replace(" ", "")
   model_name = model_name.strip().replace(" ", "")
@@ -450,30 +463,19 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   global singers
   if model_name not in singers:
     singers = singers+ '   '+ model_name
-  print("1.开始下载模型")
   download_online_model(url, model_name)
-  rvc_models(zip_path)
   song_name = song_name.strip().replace(" ", "")
   video_identifier = search_bilibili(song_name)
   song_id = get_bilibili_video_id(video_identifier)
-  if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
-    print("2.直接开始推理")
-    audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
-    #song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
-    song_infer = infer_gpu(net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
-
-  else:
-    print("2.1.开始去除BGM")
-    audio, sr = librosa.load(youtube_downloader(video_identifier, song_id, split_model)[0], sr=16000, mono=True)
-    print("2.2.开始推理")
-    #song_infer = infer_gpu(hubert_model, net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
-    song_infer = infer_gpu(net_g, audio, f0_up_key, index_files[0], tgt_sr, version, f0_file=None)
-
-  sf.write(song_name.strip()+zip_path+"AI翻唱.wav", song_infer, tgt_sr)
-  output_full_song = combine_vocal_and_inst(zip_path, song_name.strip(), song_id, split_model, song_name.strip()+zip_path+"AI翻唱.wav", vocal_volume, inst_volume)
-  os.remove(song_name.strip()+zip_path+"AI翻唱.wav")
+  print(video_identifier)
+  video_info = get_video_info(video_identifier)
+  print(video_info)
+  audio_content = get_response(video_info).content
+  with open(song_id.strip() + ".wav", mode="wb") as f:
+      f.write(audio_content)
+  output_full_song, singers = rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume)
   return output_full_song, singers
-
+      
 app = gr.Blocks(theme="JohnSmith9982/small_and_pretty")
 with app:
     with gr.Tab("中文版"):

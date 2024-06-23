@@ -41,7 +41,7 @@ from vc_infer_pipeline import VC
 from config import Config
 config = Config()
 logging.getLogger("numba").setLevel(logging.WARNING)
-spaces = True #os.getenv("SYSTEM") == "spaces"
+spaces_hf = True #os.getenv("SYSTEM") == "spaces"
 force_support = True
 
 audio_mode = []
@@ -236,8 +236,8 @@ def youtube_downloader(
 
 # Original code
 
-if force_support is False or spaces is True:
-    if spaces is True:
+if force_support is False or spaces_hf is True:
+    if spaces_hf is True:
         audio_mode = ["Upload audio", "TTS Audio"]
     else:
         audio_mode = ["Input path", "Upload audio", "TTS Audio"]
@@ -278,7 +278,7 @@ def create_vc_fn(model_name, tgt_sr, net_g, vc, if_f0, version, file_index):
                     return "You need to upload an audio", None
                 sampling_rate, audio = vc_upload
                 duration = audio.shape[0] / sampling_rate
-                if duration > 20 and spaces:
+                if duration > 20 and spaces_hf:
                     return "Please upload an audio file that is less than 20 seconds. If you need to generate a longer audio file, please use Colab.", None
                 audio = (audio / np.iinfo(audio.dtype).max).astype(np.float32)
                 if len(audio.shape) > 1:
@@ -390,6 +390,7 @@ singers="您的专属AI歌手阵容:"
 
 @spaces.GPU(duration=120)
 def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume):
+  print("3.开始加载HuBert模型...")
   from fairseq import checkpoint_utils
   models, _, _ = checkpoint_utils.load_model_ensemble_and_task(
       ["hubert_base.pt"],
@@ -402,9 +403,10 @@ def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vo
   else:
       hubert_model = hubert_model.float()
   hubert_model.eval()
+  print("3.开始加载AI歌手模型参数...")
   rvc_models(zip_path)
-
   if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
+    print("4.直接开始推理")
     audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
     song_infer = vc.pipeline(
           hubert_model,
@@ -427,7 +429,9 @@ def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vo
           f0_file=None,
     )
   else:
+    print("4.1.开始去除BGM")
     audio, sr = librosa.load(youtube_downloader(song_id, split_model)[0], sr=16000, mono=True)
+    print("4.1.开始推理")
     song_infer = vc.pipeline(
           hubert_model,
           net_g,
@@ -463,6 +467,7 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   global singers
   if model_name not in singers:
     singers = singers+ '   '+ model_name
+  print("1.开始下载AI歌手模型...")
   download_online_model(url, model_name)
   song_name = song_name.strip().replace(" ", "")
   video_identifier = search_bilibili(song_name)
@@ -471,6 +476,7 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   video_info = get_video_info(video_identifier)
   print(video_info)
   audio_content = get_response(video_info).content
+  print("2.开始下载AI翻唱歌曲...")
   with open(song_id.strip() + ".wav", mode="wb") as f:
       f.write(audio_content)
   output_full_song, singers = rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume)

@@ -114,6 +114,7 @@ def download_online_model(url, dir_name):
     else:
         zip_path = get_file_name(url)
     if not os.path.exists(zip_path):
+      print("P.S. AI歌手模型还未下载")
       try:
           zip_name = url.split('/')[-1]
           extraction_folder = os.path.join(zip_path, dir_name)
@@ -130,6 +131,8 @@ def download_online_model(url, dir_name):
 
       except Exception as e:
           raise Exception(str(e))
+    else:
+      print("P.S. AI歌手模型之前已经下载")
 
 #Get bilibili BV id
 
@@ -386,8 +389,6 @@ def rvc_models(model_name):
 
 singers="您的专属AI歌手阵容:"
 
-
-
 @spaces.GPU(duration=120)
 def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vocal_volume, inst_volume):
   print("3.开始加载HuBert模型...")
@@ -406,7 +407,7 @@ def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vo
   print("3.开始加载AI歌手模型参数...")
   rvc_models(zip_path)
   if os.path.isdir(f"./output/{split_model}/{song_id}")==True:
-    print("4.直接开始推理")
+    print("4.直接开始推理（BGM之前已经去除）...")
     audio, sr = librosa.load(f"./output/{split_model}/{song_id}/vocal_{song_id}.wav_10.wav", sr=16000, mono=True)
     song_infer = vc.pipeline(
           hubert_model,
@@ -429,9 +430,9 @@ def rvc_infer_music_gpu(zip_path, song_name, song_id, split_model, f0_up_key, vo
           f0_file=None,
     )
   else:
-    print("4.1.开始去除BGM")
+    print("4.1.开始去除BGM...")
     audio, sr = librosa.load(youtube_downloader(song_id, split_model)[0], sr=16000, mono=True)
-    print("4.1.开始推理")
+    print("4.1.开始推理...")
     song_infer = vc.pipeline(
           hubert_model,
           net_g,

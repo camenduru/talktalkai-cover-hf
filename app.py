@@ -1,3 +1,4 @@
+
 import spaces
 import os
 import glob
@@ -473,6 +474,8 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
   model_name = model_name.strip().replace(" ", "")
   if url.startswith('https://download.openxlab.org.cn/models/'):
       zip_path = get_username(url) + "-" + get_file_name(url)
+  elif url.startswith('https://huggingface.co/'):
+      zip_path = get_username_hf(url) + "-" + get_file_name(url)
   else:
       zip_path = get_file_name(url)
   global singers

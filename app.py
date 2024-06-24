@@ -108,9 +108,19 @@ def get_username(url):
         result = match_username.group(1)
         return result
 
+# Get username in Hugging Facew
+
+def get_username_hf(url):
+    match_username = re.search(r'huggingface.co/(.*?)/', url)
+    if match_username:
+        result = match_username.group(1)
+        return result
+
 def download_online_model(url, dir_name):
     if url.startswith('https://download.openxlab.org.cn/models/'):
         zip_path = get_username(url) + "-" + get_file_name(url)
+    elif url.startswith('https://huggingface.co/'):
+        zip_path = get_username_hf(url) + "-" + get_file_name(url)
     else:
         zip_path = get_file_name(url)
     if not os.path.exists(zip_path):
@@ -495,7 +505,7 @@ with app:
               * Blackpink Lisa: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/Lisa.zip
               * AI派蒙: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/paimon.zip
               * AI孙燕姿: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/syz.zip
-              * AI[一清清清](https://www.bilibili.com/video/BV1wV411u74P)（推荐使用[OpenXLab](https://openxlab.org.cn/models)存放模型zip压缩包）: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/yiqing.zip\n
+              * AI[一清清清](https://www.bilibili.com/video/BV1wV411u74P)（推荐使用 [Hugging Face](https://huggingface.co/new) 存放模型zip压缩包）: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/yiqing.zip\n
               说明1：点击“一键开启AI翻唱之旅吧！”按钮即可使用！✨\n
               说明2：一般情况下，男声演唱的歌曲转换成AI女声演唱需要升调，反之则需要降调；在“歌曲人声升降调”模块可以调整\n
               说明3：对于同一个AI歌手模型或者同一首歌曲，第一次的运行时间会比较长（大约1分钟），请您耐心等待；之后的运行时间会大大缩短哦！\n
@@ -534,7 +544,7 @@ with app:
       gr.Markdown("# <center>🌊💕🎶 TalkTalkAI - Best AI song cover generator ever</center>")
       gr.Markdown("## <center>🌟 Provide the name of a song and our application running on A100 will handle everything else!</center>")
       gr.Markdown("### <center>🤗 [TalkTalkAI](http://www.talktalkai.com/), let everyone enjoy a better life through human-centered AI💕</center>")
-      with gr.Accordion("💡 Some AI singers you can try", open=False):
+      with gr.Accordion("💡 Some AI singers you can play with", open=False):
           _ = f""" Any Zip file that you can download online will be fine (The Zip file should contain .pth and .index files):
               * AI Taylor Swift: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/taylor.zip
               * AI Blackpink Lisa: https://download.openxlab.org.cn/models/Kevin676/rvc-models/weight/Lisa.zip

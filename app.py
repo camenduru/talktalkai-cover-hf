@@ -108,7 +108,7 @@ def get_username(url):
         result = match_username.group(1)
         return result
 
-# Get username in Hugging Facew
+# Get username in Hugging Face
 
 def get_username_hf(url):
     match_username = re.search(r'huggingface.co/(.*?)/', url)

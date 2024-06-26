@@ -482,8 +482,9 @@ def rvc_infer_music(url, model_name, song_name, split_model, f0_up_key, vocal_vo
     singers = singers+ '   '+ model_name
   print("1.开始下载AI歌手模型...")
   download_online_model(url, model_name)
-  song_name = song_name.strip().replace(" ", "")
+  #song_name = song_name.strip().replace(" ", "")
   video_identifier = search_bilibili(song_name)
+  song_name = song_name.strip().replace(" ", "")
   song_id = get_bilibili_video_id(video_identifier)
   print(video_identifier)
   video_info = get_video_info(video_identifier)
